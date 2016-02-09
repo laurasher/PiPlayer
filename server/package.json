@@ -1,0 +1,17 @@
+{
+  "name": "ligth-pusher",
+  "version": "0.1.0",
+  "description": "A node app for pushing light information from coast to coast",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sosolimited",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.13.1",
+    "node-gameloop": "^0.1.0",
+    "socket.io": "^1.3.6",
+    "socket.io-client": "^1.3.6"
+  }
+}

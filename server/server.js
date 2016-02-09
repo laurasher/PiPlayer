@@ -20,7 +20,6 @@ var loggingCycle = 30;  // How often to show message in terminal.
 
 // Setup container for light wall's pixel package.
 var pixelBuffer = {};
-
 var maxBufferSize = 10; //in seconds
 
 // All Open Sockets
@@ -75,22 +74,15 @@ var systemLoop = gameloop.setGameLoop(function(delta) {
 
         if (!frameCount.hasOwnProperty(location)) { frameCount[location] = 0; }
 
-        // In order to "ping-pong" or "boomerang" the buffer we traverse the buffer
-        // from negative its length to positive its length.
-        // With the absolute value it looks like 5,4,3,2,1,0,1,2,3,4,5
-        var curFrame = Math.abs(frameCount[location]);
+        var curFrame = frameCount[location];
         socket.emit('frame', pixelBuffer[location][curFrame]);
-
-        // Once the frameCount gets beyond the length positively...
-        // we reset the count to the negative length.
-        // if the webclient is live the current frame will be 0 for "live" data.
-        if ( socketQueue.hasOwnProperty(location) && socketQueue[location].length > 0 ) {
+        
+        if ( socketQueue.hasOwnProperty(location) && socketQueue[location].length > 0 || frameCount[location] >= pixelBuffer[location].length-1 ) {
           frameCount[location] = 0;
-        } else if ( frameCount[location] >= pixelBuffer[location].length-1 ) {
-          frameCount[location] = -( pixelBuffer[location].length - 1 );
         } else {
           frameCount[location]++;
         }
+
       }
     });
 
@@ -115,11 +107,16 @@ function clientSocketHandler(socket) {
   if ( !pixelBuffer.hasOwnProperty(currentLocation) ) {
     pixelBuffer[currentLocation] = [];
   }
+  
   socketQueue[currentLocation].push(socket);
 
   var address = socket.handshake.address;
 
-  broadcastClientQueueStatus(socketQueue[currentLocation]);
+  if (socketQueue[currentLocation].length > 1) {
+    sendMessage(socket, 'You are currently ' + socketQueue[currentLocation].length + ' from the front of the queue.');
+  } else {
+    sendMessage( socket, 'You are live and at the front of the queue.');
+  }
 
   console.log("New web connection from " + address + "\n");
 
@@ -128,44 +125,15 @@ function clientSocketHandler(socket) {
     // If socket is at the front of the queue
     if (socketQueue[currentLocation][0].id === socket.id) {
       pixelBuffer[currentLocation].unshift(message);
-
+      
       // if buffer is larger than max buffer size remove the last frame.
       if (pixelBuffer[currentLocation].length > maxBufferSize * messageRate) { pixelBuffer[currentLocation].pop(); }
 
       if (stdCount % loggingCycle === 0) {
         // noTail(currentLocation + ": " + message.id + " " + message.width + "x" + message.height + " (" + message.pixels[0] + ", " + message.pixels[1] + ", " + message.pixels[2] + ")");
       }
+
     }
-  });
-
-  socket.on('clear display', function(data){
-    console.log( "someone wants to clear display for " + data.location );
-    var success = clearDisplay(data.location);
-    socket.emit('clear success', success);
-    socket.disconnect(); //if doesn't work, try putting in clearDisplay function;
-  });
-
-  // client requests to cut to front of the queue
-  socket.on('cut queue', function( data ){
-    var loc = data.location;
-    var from_idx = -1;
-
-    // find current position
-    socketQueue[loc].forEach(function (item, index, object) {
-      if (item.id === socket.id) {
-        from_idx = index;
-      }
-    });
-
-    // move socket to the front
-    var element = socketQueue[loc][from_idx];
-    socketQueue[loc].splice( from_idx, 1 ); // remove element from array
-    socketQueue[loc].splice( 0, 0, element ); // add element back to front of array
-
-    // notify all connected clients of update
-    broadcastClientQueueStatus( socketQueue[loc] );
-
-    socket.emit('cut success');
   });
 
   socket.on('disconnect', function() {
@@ -173,22 +141,6 @@ function clientSocketHandler(socket) {
     console.log("disconnected: " + JSON.stringify(address));
     // updateQueue(currentLocation);
   });
-}
-
-function clearDisplay(location) {
-  // if pixelBuffer has an array for the given location and no sockets in the location's queue
-  if( pixelBuffer.hasOwnProperty(location) && pixelBuffer[location].length > 0 && socketQueue[location].length === 0 ){
-    pixelBuffer[location].forEach(function (frame){
-      frame.pixels.forEach(function (pixelValue, index){
-        frame.pixels[index]= 0;
-      });
-    });
-
-    return true;
-  }
-  else {
-    return false;
-  }
 }
 
 function lightingAppSocketHandler(socket) {
@@ -207,51 +159,36 @@ function lightingAppSocketHandler(socket) {
             object.splice(index, 1);
         }
     });
+
     console.log("disconnected: " + JSON.stringify(address));
   });
 }
 
 function sendMessage(socket, iMessage, iClass) {
   if (typeof iClass == "undefined") iClass = "flash-success";
+
   if (socket && iMessage) {
     var messagePackage = {
       'class': iClass,
-      'content': iMessage
+      'message': iMessage
     };
-    socket.emit('status_update', messagePackage);
+
+    socket.emit('message', messagePackage);
+
   } else {
     console.log("no message emitted... missing params");
   }
+
 }
 
 function removeSocketFromQueues(socket) {
     var location = socket.handshake.query.location;
-
+    // Currently checks both queues.
     socketQueue[location].forEach(function (item, index, object) {
         if (item.id === socket.id) {
             object.splice(index, 1);
         }
     });
-    broadcastClientQueueStatus(socketQueue[location]);
-}
-
-function broadcastClientQueueStatus(queue){
-  queue.forEach( function(socket, index) {
-    sendMessage(socket, clientMessageFromIndex(index));
-    if(index==0){
-      socket.emit("status_update", {"class":"indicator","index":index, "is_live": true});
-    }else{
-      socket.emit("status_update", {"class":"indicator","index":index, "is_live": false});
-    }
-  });
-}
-
-function clientMessageFromIndex(index){
-  if (index===0){
-   return 'You are live and at the front of the queue.';
-  }else {
-    return 'You are currently ' + index + ' from the front of the queue.';
-  }
 }
 
 // Helper Function
@@ -269,13 +206,14 @@ process.stdin.resume(); //so the program will not close instantly
 
 function exitHandler(options, err) {
     if (options.cleanup) {
-      console.log('standard program exit');
+      console.log('standard program exit'); 
       gameloop.clearGameLoop(systemLoop);
       console.log('clean');
+
     }
-
+    
     if (err) console.log(err.stack);
-
+    
     if (options.exit) {
       gameloop.clearGameLoop(systemLoop);
       process.exit();

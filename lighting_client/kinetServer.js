@@ -7,11 +7,11 @@
 
 module.exports = {
 
-	createKinetServer : function() {
+	createKinetServer : function() { 
 
 		// Require UDP module
 		var dgram = require('dgram');
-
+		
 		console.log("Creating KiNet Lighting server!");
 
 		var kinetServer = {};
@@ -22,20 +22,19 @@ module.exports = {
 		// Currently defaults to 50 nodes
 		var getHeaderData = function( iPort ){
 
-		var header = [   0x04,  0x01,  0xDC,  0x4A, //magic number
-   	0x01,  0x00, //kinet version
-   	0x01,  0x01, //packet type
-   	0x00,  0x00,  0x00,  0x00,
-    0x00, //port
-    0x00, //flags, not used
-    0x00,   0x00, //timerval, not used
-    0x00,   0x00 //universe
-    // 0x00,   0x00, //universe
-    // 0x00 //DMX start code
-    ];
+		var header = [ 0x04, 0x01, 0xDC, 0x4A,  // magic number
+	    0x02, 0x00,                       // KiNet version
+	    0x08, 0x01,                       // Packet type
+	    0x00, 0x00, 0x00, 0x00,
+	    0xFF, 0xFF, 0xFF, 0xFF, 			// universe, FFFF FFFF is "don't care"
+	    iPort,                             // Port on device controller -- TODO: port will need to be set when using sPDS-480-24V
+	    0x00,                             // pad, unused
+	    0x01, 0x00,                       // Flags, originally 0x01,0x00, 04 00 for sync
+	    150, 0x00,                  	// Set length, setting to 150 (send all values)
+	    0x00, 0x00];
 
 		return header;
-
+		
 		}
 
 
@@ -67,6 +66,7 @@ module.exports = {
 				var dataPacket = header.concat( iPayload );
 				var message = new Buffer( dataPacket );
 
+
 				// Note: KiNet data MUST be sent over port 6038!
 				kinetServer.socket.send( message, 0, message.length, 6038, ipAddress, function(err) {
 
@@ -74,7 +74,7 @@ module.exports = {
 
 						kinetServer.socket.close();
 						throw err;
-					}
+					} 
 				});
 			};
 
