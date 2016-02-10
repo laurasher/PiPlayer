@@ -1,10 +1,11 @@
+var ffmpeg = require('fluent-ffmpeg');
+var getPixels = require('get-pixels');
 
 // print file name
 var args = process.argv.slice(2).toString();
 console.log(args);
 
-var ffmpeg = require('fluent-ffmpeg');
-
+// take png's from input video
 var proc = ffmpeg(args)
   // set the size of your thumbnails
   // setup event handlers
@@ -19,3 +20,15 @@ var proc = ffmpeg(args)
   })
   // take 2 screenshots at predefined timemarks
   .takeScreenshots({ count: 2, timemarks: [ '00:00:02.000', '6'] }, '/Users/lasher/Sosolimited/PiPlayer/video_play/exported');
+
+// get pixel data from one frame
+
+// write out rgb values to light server
+	getPixels('/Users/lasher/Sosolimited/PiPlayer/video_play/exported/tn_1.png', function(err, pixels){
+		if (err){
+			console.log(err);
+			return;
+		} else {
+			console.log(pixels.data);
+		}
+	});
