@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css" type="text/css"></link>
+  </head>
+  <body>
+    <header>
+        <a class="logotype" href="index.html"><span>LIGHTPOST</span></a>
+    </header>
+
+    <main>
+        <div id="sd">
+            <h1 id="sd-cityname" class="cityabbr">SD</h1>
+            <ul id="sd-options">
+                <li><a href="webcam.html#san">Webcam</a></li>
+                <li><a href="coding.html#san">Live Code</a></li>
+                <li>Brush</li>
+            </ul>
+
+        </div>
+
+        <div id="bos">
+            <h1 id="bos-cityname" class="cityabbr">BOS</h1>
+            <ul id="bos-options">
+                <li><a href="webcam.html#bos">Webcam</a></li>
+                <li><a href="coding.html#bos">Live Code</a></li>
+                <li>Brush</li>
+            </ul>
+
+        </div>
+    </main>
+
+    <footer>
+        <a href="http://sosolimited.com"><img class="sosoLogo" src="img/soso-logo.png"/></a>
+        <p>&copy; 2015 Sosolimited.</p>
+    </footer>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#sd').hover(function() {
+        $('#sd-options').toggleClass('slide-options');
+        $('#sd-cityname').toggleClass('slide-cityname');
+    });
+    $('#bos').hover(function() {
+            $('#bos-options').toggleClass('slide-options');
+            $('#bos-cityname').toggleClass('slide-cityname');
+        });
+    $('#sd-cityname').click(function() {
+        var windowWidth = $(window).width();
+        if(windowWidth > 501){
+            return;
+        }
+        if( $('#sd').hasClass('enabled') ){
+            $('#sd').removeClass('enabled');
+            $('#bos').show();
+        }
+        else {
+            $('#sd').toggleClass('enabled');
+            $("#bos").hide();
+        }
+    });
+    $('#bos-cityname').click(function() {
+        var windowWidth = $(window).width();
+        if(windowWidth > 501){
+            return;
+        }
+        if( $('#bos').hasClass('enabled') ){
+            $('#bos').removeClass('enabled');
+            $('#sd').show();
+        }
+        else {
+            $('#bos').toggleClass('enabled');
+            $("#sd").hide();
+        }
+    });
+});
+</script>
+
+  </body>
+</html>

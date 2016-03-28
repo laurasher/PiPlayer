@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="brush_style.css" type="text/css"></link>
+  </head>
+  <body>
+     <section class="navigation">
+      <h1><a href="/">LIGHTPOST</a></h1>
+      <ul class="crumbs">
+        <li id="location">loc</li>
+         <li>BRUSH</li>
+      </ul>
+    </section>
+
+    <section id="content">
+      <canvas id="preview" width="100" height="100"></canvas>
+      <canvas id="live_canvas" width="100" height="100"></canvas>
+    </section>
+
+    <div class="demo" id="colors_demo">
+    <div class="tools">
+    <a href="#live_canvas" data-color="#CB2669" style="width: 30px; height: 30px; background: #CB2669; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-color="#35DED1" style="width: 30px; height: 30px; background: #35DED1; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-color="#B338F2" style="width: 30px; height: 30px; background: #B338F2; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-color="#F09946" style="width: 30px; height: 30px; background: #F09946; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-color="#49D5FB" style="width: 30px; height: 30px; background: #49D5FB; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-color="#F8FDFE" style="width: 30px; height: 30px; background: #F8FDFE; float: right; border: 3px solid #282828;">_</a>
+    <a href="#live_canvas" data-size="10" style="width: 30px; height: 15px; background: #282828; float: right; border: 3px solid #282828;">10</a>
+    <a href="#live_canvas" data-size="30" style="width: 30px; height: 15px; background: #282828; float: right; border: 3px solid #282828;">30</a>
+    <a href="#live_canvas" data-size="50" style="width: 30px; height: 15px; background: #282828; float: right; border: 3px solid #282828;">50</a>
+    <a href="#live_canvas" data-size="100" style="width: 30px; height: 15px; background: #282828; float: right; border: 3px solid #282828;">100</a>
+    </div>
+    </div>
+
+  </body>
+  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+  <script type="text/javascript" src="lib/paper-full.js"></script>
+  <script type="text/javascript" src="pixel_pusher.js"></script>
+  <script type="text/javascript" src="lib/jquery-1.11.1.min.js"></script>=
+  <script type="text/javascript" src="sketch.js"></script>
+  <script type="text/javascript">
+
+  var updateCount = 0;
+
+
+ $(function() {
+    $.each(['#ff0', '#f00', '#0f0', '#0ff', '#00f', '#f0f', '#fff'], function() {
+      $('#colors_demo .tools').append("<a href='#colors_sketch' data-color='" + this + "' style='width: 40px; height:40px; background: " + this + ";'></a> ");
+    });
+    $('#live_canvas').sketch();
+  });
+
+
+     function createDrawingReader(canvas, liveCanvas) {
+      var context = canvas.getContext("2d"),
+          controls = {},
+          region = {x: 0, y: 0, width: 100, height: 100};
+      function downSampleDrawing() {
+        var dw = canvas.width,
+            dh = canvas.height;
+        context.save();
+        context.drawImage(liveCanvas, region.x, region.y, region.width, region.height, 0, 0, dw, dh);
+        context.restore();
+        requestAnimationFrame(downSampleDrawing);
+      }
+      controls.start = function () {
+        requestAnimationFrame(downSampleDrawing);
+      }
+      /// set pixel region to sample
+      controls.setRegion = function(new_region) {
+        region = new_region;
+      }
+      return controls;
+    }
+
+    var loc = window.location.hash.substr(1).toLowerCase(),
+        config = configuration.load(loc),
+        publisher = createPublisher(config),
+        preview = createPreview(document.getElementById("preview"), 500, 500),
+        socket = createSocketIoSender(config),
+        container = document.getElementById("content"),
+        live_canvas = document.getElementById("live_canvas"),
+        reader = createDrawingReader(publisher.canvas, live_canvas);
+
+    publisher.subscribe(preview.update);
+    publisher.subscribe(socket.update);
+
+    var ctx = live_canvas.getContext("2d");
+
+    function fade ( fadeFactor, ctx) {
+      var imageData = ctx.getImageData(0, 0, live_canvas.width, live_canvas.height);
+      var data = imageData.data;
+
+      for ( var i = 0; i < data.length; i += 4){
+        data[i] *= fadeFactor;
+        data[i + 1] *= fadeFactor;
+        data[i + 2] *= fadeFactor;
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+    }
+
+    function update() {
+      fade(0.9, ctx);
+      requestAnimationFrame(update);
+    }
+
+    update();
+
+
+    document.getElementById("location").textContent = config.id;
+    function setClippingBox() {
+      var p = preview.canvas;
+      var w = p.clientWidth;
+      var h = p.clientHeight;
+      var x = p.offsetLeft + p.clientLeft - (live_canvas.offsetLeft + live_canvas.clientLeft);
+      var y = p.offsetTop + p.clientTop - (live_canvas.offsetTop + live_canvas.clientTop);
+      reader.setRegion({x: x, y: y, width: w, height: h});
+    }
+
+    function adjustSize() {
+      live_canvas.width = container.clientWidth;
+      // console.log("client width"); //this doesn't seem to change
+      // console.log(container.clientWidth);
+      // enable flow of content below live_canvas.
+      var vertical_padding = document.getElementsByClassName("navigation")[0].clientHeight + 100;
+      container.style.height = Math.min(live_canvas.clientHeight, window.innerHeight - vertical_padding) + "px";
+      live_canvas.style.top = Math.min(0, (container.clientHeight - live_canvas.clientHeight) * 0.5) + "px";
+
+      var h = container.clientHeight * 0.8,
+          w = h * soso.aspectRatio(config);
+      preview.setSize(w, h);
+      preview.canvas.style.left = (container.clientWidth - w) / 2 + "px";
+      preview.canvas.style.top = (container.clientHeight - h) / 2 + "px";
+      setClippingBox();
+    }
+
+    var debouncedSizeAdjust = soso.debounce(adjustSize, 150);
+    reader.start();
+    adjustSize();
+    window.addEventListener("resize", function (event) {
+        debouncedSizeAdjust();
+      });
+
+  </script>
+</div>
+</html>

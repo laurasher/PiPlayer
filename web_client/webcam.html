@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="css/webcam.css" type="text/css"></link>
+  </head>
+  <body>
+    <section class="navigation">
+      <h1><a href="/">LIGHTPOST</a></h1>
+      <ul class="crumbs">
+        <li id="location">loc</li>
+        <li>WEBCAM</li>
+      </ul>
+    </section>
+    <section id="content">
+      <canvas class="preview" width="8" height="10"></canvas>
+      <video id="video" autoplay></video>
+    </section>
+    <footer>
+      SOSO
+    </footer>
+  </body>
+  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+  <script type="text/javascript" src="lib/paper-full.js"></script>
+  <script type="text/javascript" src="pixel_pusher.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript">
+    // Get a running webcam instance and return the video element it uses.
+    function connectWebcam(video) {
+      var video = video || document.createElement("video"),
+          getUserMedia = (function() {
+            var fn = navigator.getUserMedia ||
+                     navigator.webkitGetUserMedia ||
+                     navigator.mozGetUserMedia ||
+                     navigator.msGetUserMedia;
+            if (fn) {
+              return fn.bind(navigator);
+            }
+            console.log("Failed to get a usermedia camera. Sorry");
+            return function(info, success, err) {
+              err("No getUserMedia function available");
+            }
+          }());
+      video.setAttribute("autoplay", "true");
+      function loadWebcam(success, err) {
+        getUserMedia({video: true}, success, err);
+      }
+      function handleSuccess(localMediaStream) {
+        video.src = window.URL.createObjectURL(localMediaStream);
+      }
+      function handleError(error) {
+        console.log("No dice on that camera feed. Sorry.", error);
+      }
+      loadWebcam(handleSuccess, handleError);
+      return video;
+    }
+    function createVideoReader(canvas, video) {
+      var context = canvas.getContext("2d"),
+          controls = {},
+          region = {x: 0, y: 0, width: 100, height: 100};
+      function readWebcam() {
+        // normalized coordinates
+        var dw = canvas.width,
+            dh = canvas.height,
+            scale = video.videoWidth / video.clientWidth;
+        context.save();
+        // mirror camera image
+        context.translate(dw, 0);
+        context.scale(-1, 1);
+        context.drawImage(video, region.x * scale, region.y * scale, region.width * scale, region.height * scale, 0, 0, dw, dh);
+        context.restore();
+        requestAnimationFrame(readWebcam);
+      }
+      controls.start = function () {
+        requestAnimationFrame(readWebcam);
+      }
+      /// set pixel region to sample
+      controls.setRegion = function(new_region) {
+        region = new_region;
+      }
+      return controls;
+    }
+    var loc = window.location.hash.substr(1).toLowerCase(),
+        config = configuration.load(loc),
+        publisher = createPublisher(config),
+        preview = createPreview(document.getElementsByClassName("preview")[0], 480 * soso.aspectRatio(config), 480),
+        socket = createSocketIoSender(config),
+        video = connectWebcam(document.getElementById("video")),
+        container = document.getElementById("content"),
+        reader = createVideoReader(publisher.canvas, video);
+    publisher.subscribe(preview.update);
+    publisher.subscribe(socket.update);
+    // document.getElementByTagName("footer")[0].appendChild(publisher.canvas);
+    document.getElementById("location").textContent = config.id;
+    function setClippingBox() {
+      var p = preview.canvas;
+      var w = p.clientWidth;
+      var h = p.clientHeight;
+      var x = p.offsetLeft + p.clientLeft - (video.offsetLeft + video.clientLeft);
+      var y = p.offsetTop + p.clientTop - (video.offsetTop + video.clientTop);
+      reader.setRegion({x: x, y: y, width: w, height: h});
+    }
+    function adjustSize() {
+      video.width = container.clientWidth;
+            console.log("client width");
+      console.log(container.clientWidth);
+      // enable flow of content below video.
+      var vertical_padding = document.getElementsByClassName("navigation")[0].clientHeight + 100;
+      container.style.height = Math.min(video.clientHeight, window.innerHeight - vertical_padding) + "px";
+      video.style.top = Math.min(0, (container.clientHeight - video.clientHeight) * 0.5) + "px";
+      var h = container.clientHeight * 0.8,
+          w = h * soso.aspectRatio(config);
+      preview.setSize(w, h);
+      preview.canvas.style.left = (container.clientWidth - w) / 2 + "px";
+      preview.canvas.style.top = (container.clientHeight - h) / 2 + "px";
+      setClippingBox();
+    }
+    var debouncedSizeAdjust = soso.debounce(adjustSize, 150);
+    // Set sizes of content when we know how big the video is.
+    video.onloadedmetadata = function (e) {
+      console.log("Received metadata.", e);
+      var aspect = video.videoWidth / video.videoHeight;
+      console.log(aspect);
+      adjustSize();
+      window.addEventListener("resize", function (event) {
+        debouncedSizeAdjust();
+      });
+    };
+    video.oncanplaythrough = function (e) {
+      reader.start();
+    };
+  </script>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <canvas id="live_canvas" width="500" height="500"></canvas>
+
+  </body>
+  <script type="text/javascript">
+
+  var live_canvas = document.getElementById("live_canvas");
+  var ctx = live_canvas.getContext("2d");
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(10, 10, 100, 100);
+
+function fade (fadeFactor, ctx) {
+
+  var imageData = ctx.getImageData(0,0, live_canvas.width, live_canvas.height);
+  var data = imageData.data;
+//   var fadeFactor = 0.95;
+
+
+  for ( var i = 0; i < data.length ; i += 4){
+    data[i] *= fadeFactor;
+//     data[i + 1] *= fadeFactor;
+//     data[i + 2] *= fadeFactor;   
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function update (){
+  fade(0.99, ctx);
+  requestAnimationFrame(update);
+}
+
+update();
+
+  </script>
+</div>
+</html>
