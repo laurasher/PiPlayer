@@ -8,7 +8,7 @@ var args = process.argv.slice(2).toString();
 try {
     new ffmpeg( args, function (err, video) {
         if (!err) {
-						console.log(video.metadata);
+						// console.log(video.metadata);
             console.log('The video is ready to be processed');
 				video.fnExtractFrameToJPG('/Users/lasher/Sosolimited/PiPlayer/video_play/exported', {
 							start_time              : null      // Start time to recording

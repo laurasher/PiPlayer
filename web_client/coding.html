@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- <link rel="stylesheet" href="style.css" type="text/css"></link> -->
+  </head>
+  <body>
+    <section id="san">
+      <canvas class="output" width="6" height="8" keepalive="true"></canvas>
+      <canvas class="preview" width="6" height="8"></canvas>
+    </section>
+    <section id="bos">
+      <canvas class="output" width="10" height="10" keepalive="true"></canvas>
+      <canvas class="preview" width="10" height="10" keepalive="true"></canvas>
+    </section>
+  </body>
+  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+  <script src="lib/paper-full.js"></script>
+  <script src="pixel_pusher.js"></script>
+  <script>
+    /// A particular custom animation; a circle within the bounds of the view.
+    function createOrbiter(controller, opt) {
+      var controls = {},
+          paper = controller.paper(),
+          size = opt.size || 3.0,
+          speed = 1.0,
+          rx = opt.rx || controller.width / 2.0 - size,
+          ry = opt.ry || controller.height / 2.0 - size,
+          color = opt.color || "#F90",
+          circle = new paper.Path.Circle({radius: size, position: [4, 4], fillColor: color});
+      paper.view.onFrame = function (event) {
+        var t = event.time * speed,
+            x = controller.width / 2.0 + Math.cos(t) * rx,
+            y = controller.height / 2.0 + Math.sin(t) * ry;
+        circle.position = [x, y];
+      };
+      controls.setRadius = function (x, y) {
+        rx = x;
+        ry = y;
+      }
+      controls.setSpeed = function (s) {
+        speed = s;
+      }
+      return controls;
+    }
+    var san = createLightController(document.getElementById("san"), "browser san diego"),
+        bos = createLightController(document.getElementById("bos"), "browser boston");
+    /// Install an animation in each view and store their controls.
+    var san_orbit = createOrbiter(san, {color: "#F09", rx: 4.0, size: 2.0});
+    var bos_orbit = createOrbiter(bos, {color: "#90F", size: 3.5});
+  </script>
+</html>
