@@ -1,15 +1,61 @@
 # PiPlayer
 Application for playing movies on assorted lighting hardware with a Raspberry Pi.
 
-OLD
+## Raspberry Pi Setup From Scratch
 
-brew update
+### To reimage sd card
 
-brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-frei0r --with-libass --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools
+diskutil unmountDisk /dev/disk<disk# from diskutil>
+sudo dd bs=1m if=Downloads/2015-05-05-raspbian-wheezy.img of=/dev/rdisk<disk# from diskutil>
 
-npm install ffmpeg
+### Fix keyboard layout
+sudo raspi-config
+Internationalisation options
+Keyboard configuration
 
-node videoParse.js 'ProcessTest.avi'
+### To install node
+curl -sLS https://apt.adafruit.com/add | sudo bash
+sudo apt-get install node
+
+
+### Free up some memory
+rm -rf python_games
+
+### Clone repo
+git clone https://github.com/laurasher/PiPlayer
+
+### Now change network settings
+sudo pico /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+allow-hotplug eth0
+iface eth0 inet dhcp
+
+auto eth0:0
+iface eth0:0 inet static
+address 10.3.252.100
+netmask 255.0.0.0
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+auto wlan1
+allow-hotplug wlan1
+iface wlan1 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+
+### Kill one dhcp client
+dpkg -l | grep dhcp
+apt-get remove dhcpcd5
+
+### Restart
+sudo reboot
 
 
 ----------------------------------------------------------
