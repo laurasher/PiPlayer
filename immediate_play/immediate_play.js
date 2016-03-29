@@ -153,8 +153,8 @@ var createFrameClient = function() {
 	   for(var i = 0; i < 1e7; i++){
 	     if((new Date().getTime() - start) > milliseconds){
 		break;
-	     }	
-	   }	
+	     }
+	   }
 	}
 
 
@@ -183,6 +183,7 @@ var createFrameClient = function() {
 
 
 		console.log(lightStrand);
+		sleep(1000);
 		// }
 	}
 //while(1){
