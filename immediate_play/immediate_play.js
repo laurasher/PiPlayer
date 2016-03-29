@@ -177,6 +177,7 @@ var createFrameClient = function() {
 			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
 			lightStrand[i+2] = 100;
 		}
+		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 
 		//lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		while(1){
