@@ -179,17 +179,23 @@ var createFrameClient = function() {
 		}
 
 		//lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
+		while(1){
+					for(var i=0;i<150;i+=3){
+							lightStrand[i] = Math.floor((Math.random() * 100) + 10);
+							lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
+							lightStrand[i+2] = 100;
+					}
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-
+		sleep(1000);
+		}
 
 		console.log(lightStrand);
-		sleep(1000);
 		// }
 	}
-//while(1){
+while(1){
 		playRandomData();
 //		sleep(1000);
-//	}
+	}
 		//////////////////////////////////////////////
 
 		// Format lightstrand for either Boston or San Diego
