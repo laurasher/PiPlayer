@@ -21,7 +21,7 @@ var kinetServer = require('./kinetServer.js');
 // - - - - - - - - - - - - - - -
 // Frame Client Factory Function
 // - - - - - - - - - - - - - - -
-
+while(1){
 // Create FrameClient (immediately executed)
 var createFrameClient = function() {
 
@@ -147,6 +147,34 @@ var createFrameClient = function() {
 		console.log("Disconnected from Frame Server");
 	});
 
+
+	// On the frame event make a write out.
+	// client.socket.on('frame', function(data){
+	function playRandomData(){
+		var rows = 8;
+		var cols = 6;
+
+		// Generate light strand
+		var lightStrand = new Array(150 +1 );
+		for(var i=0;i<150;i+=3){
+			lightStrand[i] = Math.floor((Math.random() * 100) + 10);
+			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
+			lightStrand[i+2] = 100;
+		}
+
+		//lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
+		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
+
+
+		console.log(lightStrand);
+}
+// client.socket.on('frame', function(data){
+		playRandomData();
+// });
+
+
+}();
+
 	function sleep(milliseconds){
 	   console.log("waiting");
 	   var start = new Date().getTime();
@@ -156,33 +184,5 @@ var createFrameClient = function() {
 	     }
 	   }
 	}
-
-while(1){
-
-	// On the frame event make a write out.
-	//client.socket.on('frame', function(data) {
-	function playRandomData(){
-
-		var rows = 8;
-		var cols = 6;
-
-		// Generate light strand
-		var lightStrand = new Array(150 + 1 );
-
-		for(var i=0;i<150;i+=3){
-			lightStrand[i] = Math.floor((Math.random() * 100) + 10);
-			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
-			lightStrand[i+2] = 100;
-		}
-
-		lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
-		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-
-
-		console.log(lightStrand);
-
-
-		playRandomData();
-}();
-sleep(1000);
+		sleep(10000000000000000);
 }
