@@ -180,8 +180,8 @@ while(1){
 
 
 		console.log(lightStrand);
-		}
-	}
+
+
 		playRandomData();
 }();
 sleep(1000);
