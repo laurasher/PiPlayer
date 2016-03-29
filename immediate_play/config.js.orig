@@ -1,5 +1,9 @@
 module.exports.location = "SAN"; //Location as BOS or SAN
-// module.exports.kinetIP = "10.32.30.169";
 module.exports.kinetIP = "10.4.97.107";
+<<<<<<< 31c5bcc3133da1b2e17efe7823f27cfa8db8fe1e
 //module.exports.server = "https://lightpost.sosolimited.com:3000";
 module.exports.server = "http://localhost:3000"
+=======
+module.exports.server = "http://localhost:3000";
+// module.exports.server = "http://lightpost.sosolimited.com"
+>>>>>>> Trying to match what works on the pi
