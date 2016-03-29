@@ -147,8 +147,19 @@ var createFrameClient = function() {
 		console.log("Disconnected from Frame Server");
 	});
 
+	function sleep(milliseconds){
+	   console.log("waiting");
+	   var start = new Date().getTime();
+	   for(var i = 0; i < 1e7; i++){
+	     if((new Date().getTime() - start) > milliseconds){
+		break;
+	     }	
+	   }	
+	}
+
+
 	// On the frame event make a write out.
-	// client.socket.on('frame', function(data) {
+	//client.socket.on('frame', function(data) {
 	function playRandomData(){
 		// var rows = data.height;
 		// var cols = data.width;
@@ -173,10 +184,10 @@ var createFrameClient = function() {
 		// }
 	}
 
-	while(1){
+//	while(1){
 		playRandomData();
-		// setTimeout( playRandomData, 50000000 );
-	}
+//		sleep(1000);
+//	}
 		//////////////////////////////////////////////
 
 		// Format lightstrand for either Boston or San Diego
