@@ -170,28 +170,27 @@ var createFrameClient = function() {
 
 		/////////////// Send data here ///////////////
 		// Generate light strand
-		var lightStrand = new Array(150 +1 );
-		// while(1){
+		var lightStrand = new Array(150 + 1 );
+
 		for(var i=0;i<150;i+=3){
 			lightStrand[i] = Math.floor((Math.random() * 100) + 10);
 			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
 			lightStrand[i+2] = 100;
 		}
+		lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 
-		//lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		while(1){
 					for(var i=0;i<150;i+=3){
 							lightStrand[i] = Math.floor((Math.random() * 100) + 10);
 							lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
 							lightStrand[i+2] = 100;
 					}
+		lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
+		console.log(lightStrand);
 		sleep(1000);
 		}
-
-		console.log(lightStrand);
-		// }
 	}
 		playRandomData();
 
