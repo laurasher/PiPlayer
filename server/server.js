@@ -57,7 +57,6 @@ var appIO = io.listen(lightPORT);
 
 // Initial Event for connecting clients.
 httpIO.on('connection', clientSocketHandler);
-
 // Initial Event for connecting clients.
 appIO.on('connection', lightingAppSocketHandler);
 
@@ -76,7 +75,7 @@ var systemLoop = gameloop.setGameLoop(function(delta) {
 
         var curFrame = frameCount[location];
         socket.emit('frame', pixelBuffer[location][curFrame]);
-        
+
         if ( socketQueue.hasOwnProperty(location) && socketQueue[location].length > 0 || frameCount[location] >= pixelBuffer[location].length-1 ) {
           frameCount[location] = 0;
         } else {
@@ -84,14 +83,16 @@ var systemLoop = gameloop.setGameLoop(function(delta) {
         }
 
       }
+// Start our HTTP Server
+server.listen(clientPORT, function() {
+  console.log( 'Http Server listening on port: %s', this.address().port );
+  //emit a frame here
+socket.emit('frame',5);
+});
     });
 
 }, 1000 / messageRate);
 
-// Start our HTTP Server
-server.listen(clientPORT, function() {
-  console.log( 'Http Server listening on port: %s', this.address().port );
-});
 
 //=================
 // Socket Handling
@@ -107,7 +108,7 @@ function clientSocketHandler(socket) {
   if ( !pixelBuffer.hasOwnProperty(currentLocation) ) {
     pixelBuffer[currentLocation] = [];
   }
-  
+
   socketQueue[currentLocation].push(socket);
 
   var address = socket.handshake.address;
@@ -125,7 +126,7 @@ function clientSocketHandler(socket) {
     // If socket is at the front of the queue
     if (socketQueue[currentLocation][0].id === socket.id) {
       pixelBuffer[currentLocation].unshift(message);
-      
+
       // if buffer is larger than max buffer size remove the last frame.
       if (pixelBuffer[currentLocation].length > maxBufferSize * messageRate) { pixelBuffer[currentLocation].pop(); }
 
@@ -206,14 +207,14 @@ process.stdin.resume(); //so the program will not close instantly
 
 function exitHandler(options, err) {
     if (options.cleanup) {
-      console.log('standard program exit'); 
+      console.log('standard program exit');
       gameloop.clearGameLoop(systemLoop);
       console.log('clean');
 
     }
-    
+
     if (err) console.log(err.stack);
-    
+
     if (options.exit) {
       gameloop.clearGameLoop(systemLoop);
       process.exit();
