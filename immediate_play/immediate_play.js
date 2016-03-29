@@ -66,7 +66,7 @@ var createFrameClient = function() {
 	client.socket = require('socket.io-client')(config.server, {query: 'location='+config.location});
 	client.frameCount = 0;
 
-	// Letting us know when we connect.
+	// Letting us know  when we connect.
 	client.socket.on('connect', function(){
 		console.log("Connected to Frame Server");
 	});
