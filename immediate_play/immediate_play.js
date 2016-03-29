@@ -147,6 +147,10 @@ var createFrameClient = function() {
 		console.log("Disconnected from Frame Server");
 	});
 
+	function doSomething() {
+  //do whatever you want here
+	}
+
 	// On the frame event make a write out.
 	// client.socket.on('frame', function(data) {
 	function playRandomData(){
@@ -156,11 +160,9 @@ var createFrameClient = function() {
 		var cols = 6;
 		// var lightStrand = data.pixels;
 
-
 		/////////////// Send data here ///////////////
 		// Generate light strand
-		var lightStrand = new Array(150 +1 );
-		// while(1){
+		var lightStrand = new Array(150 + 1 );
 		for(var i=0;i<150;i++){
 			lightStrand[i] = Math.floor((Math.random() * 100) + 10);
 		}
@@ -170,12 +172,11 @@ var createFrameClient = function() {
 
 
 		console.log(lightStrand);
-		// }
 	}
 
 	while(1){
 		playRandomData();
-		// setTimeout( playRandomData, 50000000 );
+		setTimeout(doSomething, 3000);
 	}
 		//////////////////////////////////////////////
 
