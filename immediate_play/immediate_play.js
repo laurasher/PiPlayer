@@ -193,10 +193,8 @@ var createFrameClient = function() {
 		console.log(lightStrand);
 		// }
 	}
-while(1){
 		playRandomData();
-//		sleep(1000);
-	}
+
 		//////////////////////////////////////////////
 
 		// Format lightstrand for either Boston or San Diego
