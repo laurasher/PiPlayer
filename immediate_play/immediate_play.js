@@ -21,7 +21,7 @@ var kinetServer = require('./kinetServer.js');
 // - - - - - - - - - - - - - - -
 // Frame Client Factory Function
 // - - - - - - - - - - - - - - -
-while(1){
+//while(1){
 // Create FrameClient (immediately executed)
 var createFrameClient = function() {
 
@@ -40,78 +40,7 @@ var createFrameClient = function() {
 		reverseArray(arr, start+1, end-1);
 	}
 
-	// Order incoming pixels using Boston lighting configuration
-	// Boston lights snake up from bottom left of matrix
-	/*
-	function bostonLightConfig(R, C, Arr){
 
-		// Transform array into matrix coordinates
-		var rLength = C*3; //row length = num of pixel columns * the three R,G, & B values
-		var array = Arr;
-		var flip = 0;
-
-		reverseArray(array, 0, (array.length-1));
-
-		for (var i = 0; i < R; i++) {
-					var start = i*rLength;
-					if(i>4&&i<10){
-						flip = 1;
-					}else{
-						flip=0;
-					}
-
-					if (i%2===flip) {
-							reverseArray(array, start, i*rLength+rLength-1);
-				}   else {
-							for (var n = start; n < start+rLength-2; n=n+3) {
-								reverseArray(array, n, n+2);
-							}
-					}
-				}
-			//returns array of rgb values formatted for boston sudiolight configuration
-
-			return array;
-	}
-*/
-	// Order incoming pixels using San Diego lighting configuration
-	// San Diego lights
-	function SDLightConfig(R, C, Arr){
-
-		var emptyValues=[0,0,0,0,0,0];
-		var rLength = C*3; //row length = num of pixel columns * the three R,G, & B values
-		var array = Arr;
-
-		//reverseArray(array, 0, (array.length-1));
-
-		 for (var i = 0; i < R; i++) {
-			var start = i*rLength;
-			if (i%2==0) {
-				reverseArray(array, start, i*rLength+rLength-1);
-				for (var n = start; n < start+rLength-2; n=n+3) {
-					reverseArray(array, n, n+2);
-				}
-			}
-		}
-		//returns
-		return emptyValues.concat(array);
-	}
-
-
-	function logConfig(columns, Array){
-
-		if(config.location==="SAN"){
-		var colorArray = Array.slice(6,150);
-		}else{
-		var colorArray = Array.slice();
-		}
-		console.log('\n');
-		for (var i = 0; i < colorArray.length; i++) {
-				if (i%(columns*3)==0) {
-						console.log('\n');
-				}
-				process.stdout.write("["+i+"]"+colorArray[i] + " ");
-			}
-	}
 // - - - - - - - - - - - - - - -
 // Create Client
 // - - - - - - - - - - - - - - -
@@ -149,7 +78,6 @@ var createFrameClient = function() {
 
 
 	// On the frame event make a write out.
-	// client.socket.on('frame', function(data){
 	function playRandomData(){
 		var rows = 8;
 		var cols = 6;
@@ -162,17 +90,15 @@ var createFrameClient = function() {
 			lightStrand[i+2] = 100;
 		}
 
-		//lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 
 
 		console.log(lightStrand);
 }
-// client.socket.on('frame', function(data){
+	client.socket.on('frame', function(data){
 		playRandomData();
-// });
-
-
+		sleep(10000000000000000);
+});
 }();
 
 	function sleep(milliseconds){
@@ -184,5 +110,5 @@ var createFrameClient = function() {
 	     }
 	   }
 	}
-		sleep(10000000000000000);
-}
+		// sleep(10000000000000000);
+//}
