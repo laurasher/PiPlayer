@@ -157,18 +157,15 @@ var createFrameClient = function() {
 	   }
 	}
 
+while(1){
 
 	// On the frame event make a write out.
 	//client.socket.on('frame', function(data) {
 	function playRandomData(){
-		// var rows = data.height;
-		// var cols = data.width;
+
 		var rows = 8;
 		var cols = 6;
-		// var lightStrand = data.pixels;
 
-
-		/////////////// Send data here ///////////////
 		// Generate light strand
 		var lightStrand = new Array(150 + 1 );
 
@@ -177,41 +174,15 @@ var createFrameClient = function() {
 			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
 			lightStrand[i+2] = 100;
 		}
+
 		lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 
-		while(1){
-					for(var i=0;i<150;i+=3){
-							lightStrand[i] = Math.floor((Math.random() * 100) + 10);
-							lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
-							lightStrand[i+2] = 100;
-					}
-		lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
-		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
+
 		console.log(lightStrand);
-		sleep(1000);
 		}
 	}
 		playRandomData();
-
-		//////////////////////////////////////////////
-
-		// Format lightstrand for either Boston or San Diego
-		/*
-		if(config.location==="BOS"){
-			lightStrand = bostonLightConfig(rows, cols, lightStrand).slice();
-
-			client.kinetServer.sendKinetData( lightStrand.slice(0,150), config.kinetIP, 3);
-			client.kinetServer.sendKinetData( lightStrand.slice(150,300), config.kinetIP, 1 );
-			client.kinetServer.sendKinetData( lightStrand.slice(300,lightStrand.length), config.kinetIP, 2);
-
-		}else{
-			lightStrand = SDLightConfig(rows, cols, lightStrand.slice(0,144)).slice();
-
-			client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-		}
-*/
-			//log values in console in row/column format
-			// logConfig(6, 8,lightStrand);
-	// });
 }();
+sleep(1000);
+}
