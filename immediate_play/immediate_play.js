@@ -62,7 +62,6 @@ var createFrameClient = function() {
 	client.kinetServer = kinetServer.createKinetServer();
 
 	// Connect to local running server instance
-	// TODO: Update to use remote server after deployment
 	client.socket = require('socket.io-client')(config.server, {query: 'location='+config.location});
 	client.frameCount = 0;
 
@@ -76,8 +75,6 @@ var createFrameClient = function() {
 		console.log("Disconnected from Frame Server");
 	});
 
-
-	// On the frame event make a write out.
 	function playRandomData(){
 		var rows = 8;
 		var cols = 6;
@@ -91,13 +88,11 @@ var createFrameClient = function() {
 		}
 
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-
-
 		console.log(lightStrand);
 }
 	client.socket.on('frame', function(data){
 		playRandomData();
-		sleep(10000000000000000);
+		console.log("Sent data");
 });
 }();
 
@@ -110,5 +105,4 @@ var createFrameClient = function() {
 	     }
 	   }
 	}
-		// sleep(10000000000000000);
-//}
+
