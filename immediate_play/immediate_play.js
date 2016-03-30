@@ -48,6 +48,8 @@ var createFrameClient = function() {
 	// first check for config.js, which needs to be created manually
 	// at each location (base it on config-default.js)
 	var fs = require('fs');
+	var process = require('child_process');
+	var ls = process.fork('server.js');
 
 	if( !fs.existsSync('./config.js') ){
 		console.log( "\nError: config.js not found! Copy config-default.js to config.js and change values as needed.\n" );
