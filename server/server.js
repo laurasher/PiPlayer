@@ -85,7 +85,7 @@ var systemLoop = gameloop.setGameLoop(function(delta) {
       }
 // Start our HTTP Server
 server.listen(clientPORT, function() {
-  // console.log( 'Http Server listening on port: %s', this.address().port );
+  console.log( 'Http Server listening on port: %s', this.address().port );
   //emit a frame here
 socket.emit('frame',5);
 });

@@ -70,7 +70,9 @@ sudo reboot
 4. Edit the config as necessary: `pico config.js`
 5. Run the software: `node lightingClient.js`
 
+### Install xdotool
+
 
 ### Launch the Node.js software as a background process on Raspberry Pi boot
 
-We want to set the node.js script to run at startup for convenience. Open the pi startup script: `pico /etc/rc.local` and add a line right before "exit 0" at the bottom: `su - pi -c "screen -dm -S pistartup sh ~/PiPlayer/startup.sh"`. This will launch the script in the "screen" process, which is a terminal process manager. You can "resume" a running screen command by typing `screen -r`, which will come in handy if you have to connect to the Pi to kill the node process when updating the git repo.
+We want to set the node.js script to run at startup for convenience. Open the pi startup script: `pico /etc/rc.local` and add a line right before "exit 0" at the bottom: `su - pi -c "screen -dm -S pistartup sh ~/PiPlayer/immediate_play/startup.sh"`. This will launch the script in the "screen" process, which is a terminal process manager. You can "resume" a running screen command by typing `screen -r`, which will come in handy if you have to connect to the Pi to kill the node process when updating the git repo.

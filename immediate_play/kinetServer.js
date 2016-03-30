@@ -7,11 +7,11 @@
 
 module.exports = {
 
-	createKinetServer : function() { 
+	createKinetServer : function() {
 
 		// Require UDP module
 		var dgram = require('dgram');
-		
+
 		console.log("Creating KiNet Lighting server!");
 
 		var kinetServer = {};
@@ -34,7 +34,7 @@ module.exports = {
 	    0x00, 0x00];
 
 		return header;
-		
+
 		}
 
 
@@ -43,7 +43,7 @@ module.exports = {
 			// If pixel data is too long, clip array
 			if ( iPixelData.length > 150 ){
 
-				console.log("Warning: Pixel data array is too long.  Clipping to 150 pixel values.");
+				// console.log("Warning: Pixel data array is too long.  Clipping to 150 pixel values.");
 				iPixelData = iPixelData.slice(0, 150);
 
 			// If pixel data is too short, pad array
@@ -74,7 +74,7 @@ module.exports = {
 
 						kinetServer.socket.close();
 						throw err;
-					} 
+					}
 				});
 			};
 

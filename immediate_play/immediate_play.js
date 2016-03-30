@@ -29,6 +29,8 @@ var createFrameClient = function() {
 // Helper functions
 // - - - - - - - - - - - - - - -
 
+	var count = 0;
+
 	function reverseArray(arr, start, end){
 		var temp;
 		if (start >= end){
@@ -84,17 +86,18 @@ var createFrameClient = function() {
 		// Generate light strand
 		var lightStrand = new Array(150 +1 );
 		for(var i=0;i<150;i+=3){
-			lightStrand[i] = Math.floor((Math.random() * 100) + 10);
-			lightStrand[i+1] = Math.floor((Math.random()*100) + 10);
-			lightStrand[i+2] = 100;
+			lightStrand[i] = Math.floor(100+50*Math.cos(count/50));
+			lightStrand[i+1] = Math.floor(100+50*Math.cos(count/20));
+			lightStrand[i+2] = Math.floor(100+50*Math.cos(count/50));
+			// console.log(Math.floor(100+50*Math.cos(count/50)));
 		}
 
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-		console.log(lightStrand);
+		// console.log(lightStrand);
 }
 	client.socket.on('frame', function(data){
 		playRandomData();
-		console.log("Sent data");
+		count++;
 });
 }();
 
