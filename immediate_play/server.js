@@ -15,6 +15,7 @@ var gameloop = require('node-gameloop');    // module to run a loop at a certain
 const clientPORT = 4677;
 const lightPORT = 3000;
 
+// CHANGE THIS TO LENGTH OF VIDEO/NUM_SCREENSHOTS
 var messageRate = 30;  // Output to lighting app (fps)
 var loggingCycle = 30;  // How often to show message in terminal.
 

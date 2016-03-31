@@ -15,10 +15,12 @@
 var kinetServer = require('./kinetServer.js');
 var ffmpeg = require('fluent-ffmpeg');
 var getPixels = require('get-pixels');
-
+var gameloop = require('node-gameloop');
 
 // Read in video file name from command line
 var args = process.argv.slice(2).toString();
+var duration = 0;
+// var frameRate = 0;
 
 
 // - - - - - - - - - - - - - - -
@@ -34,33 +36,41 @@ var args = process.argv.slice(2).toString();
 // Create FrameClient (immediately executed)
 var createFrameClient = function() {
 
+var screenshot_count = 1;
+var duration = 0;
+var frameRate = 0;
 
-	var count = 0;
-	var screenshot_count = 1;
+// First check for config.js, which needs to be created manually
+var fs = require('fs');
+var config = require('./config.js');
+if( !fs.existsSync('./config.js') ){
+	console.log( "\nError: config.js not found! Copy config-default.js to config.js and change values as needed.\n" );
+	return;
+}
+
+ffmpeg.ffprobe(args, function(err, metadata) {
+  duration = metadata.format.duration;
+  // Set frame rate
+  frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
+  console.log(frameRate);
+});
+
 
 // - - - - - - - - - - - - - - -
 // Create Client
 // - - - - - - - - - - - - - - -
 
 	// Create child node process to trigger sending of frames
-	var process = require('child_process');
-	var ls = process.fork('server.js');
+	// var process = require('child_process');
+	// var ls = process.fork('server.js');
 
-
-	// First check for config.js, which needs to be created manually
-	var fs = require('fs');
-	var config = require('./config.js');
-	if( !fs.existsSync('./config.js') ){
-		console.log( "\nError: config.js not found! Copy config-default.js to config.js and change values as needed.\n" );
-		return;
-	}
 
 	var client = {};
 
 	var proc = ffmpeg(args)
   	// Setup event handlers
   	.on('filenames', function(filenames) {
-    	console.log('Screenshots are ' + filenames.join(', '));
+    	// console.log('Screenshots are ' + filenames.join(', '));
   	})
   	.on('end', function() {
     	console.log('Screenshots were saved');
@@ -70,7 +80,6 @@ var createFrameClient = function() {
   	})
   	// Take num_screenshots screenshots at predefined timemarks
   	.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
-
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -97,7 +106,7 @@ var createFrameClient = function() {
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
 		if (err){
-			console.log(err);
+			// console.log(err);
 			return;
 		} else {
 			var pixelArr = pixels.data;
@@ -126,14 +135,19 @@ var createFrameClient = function() {
 	});
 	}
 
-// When receive frame from child process, call function to send pixels to lights
-	client.socket.on('frame', function(data){
+// start the loop at 30 fps (1000/30ms per frame) and grab its id
+var frameCount = 0;
+var id = gameloop.setGameLoop(function(delta) {
+	// `delta` is the delta time from the last frame
 		if (screenshot_count > config.num_screenshots){
 			screenshot_count = 1;
 		}
 		sendPixelsToLights(screenshot_count);
-		count++; screenshot_count++;
-	});
+		screenshot_count++;
+		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
+	// console.log(frameRate);
+}, frameRate);
+
 
 }();
 
