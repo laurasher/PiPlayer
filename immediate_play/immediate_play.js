@@ -16,14 +16,39 @@
 
 // Require kinetServer module
 var kinetServer = require('./kinetServer.js');
+var ffmpeg = require('fluent-ffmpeg');
+var getPixels = require('get-pixels');
+
+//====================
+// Print file name
+//====================
+
+var args = process.argv.slice(2).toString();
+console.log(args);
+
+// take png's from input video
+var proc = ffmpeg(args)
+  // set the size of your thumbnails
+  // setup event handlers
+  .on('filenames', function(filenames) {
+    console.log('screenshots are ' + filenames.join(', '));
+  })
+  .on('end', function() {
+    console.log('screenshots were saved');
+  })
+  .on('error', function(err) {
+    console.log('an error happened: ' + err.message);
+  })
+  // take 2 screenshots at predefined timemarks
+  .takeScreenshots({ count: 2, timemarks: [ '00:00:02.000', '6'] }, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
 
 
 // - - - - - - - - - - - - - - -
 // Frame Client Factory Function
 // - - - - - - - - - - - - - - -
-//while(1){
 // Create FrameClient (immediately executed)
 var createFrameClient = function() {
+
 
 // - - - - - - - - - - - - - - -
 // Helper functions
@@ -80,26 +105,46 @@ var createFrameClient = function() {
 	});
 
 	function playRandomData(){
-		var rows = 8;
-		var cols = 6;
 
-		// Generate light strand
-		var lightStrand = new Array(150 +1 );
-		for(var i=0;i<150;i+=3){
-			lightStrand[i] = Math.floor(100+50*Math.cos(count/50));
-			lightStrand[i+1] = Math.floor(100+50*Math.cos(count/20));
-			lightStrand[i+2] = Math.floor(100+50*Math.cos(count/50));
-			// console.log(Math.floor(100+50*Math.cos(count/50)));
+	var lightStrand = new Array(150 +1 );
+
+
+	getPixels('/Users/lasher/Sosolimited/PiPlayer/video_play/exported/tn_1.png', function(err, pixels){
+		if (err){
+			console.log(err);
+			return;
+		} else {
+			var pixelArr = pixels.data;
+			var pix = new Array(150 +1 );
+			var cnt = 0;
+		for(var i=0;i<199;i+=4){
+			pix[cnt] = pixelArr[i];
+			pix[cnt+1] = pixelArr[i+1];
+			pix[cnt+2] = pixelArr[i+2];
+			cnt+=3;
 		}
 
+		// Generate light strand
+		for(var i=0;i<150;i+=3){
+			 lightStrand[i] = pix[i];
+			 lightStrand[i+1] = pix[i+1];
+			 lightStrand[i+2] = pix[i+2];
+		}
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
-		// console.log(lightStrand);
-}
-	client.socket.on('frame', function(data){
+		}
+			 console.log(lightStrand);
+	});
+
+	}
+		client.socket.on('frame', function(data){
 		playRandomData();
 		count++;
-});
-}();
+	});
+	}();
+
+
+
+
 
 	function sleep(milliseconds){
 	   console.log("waiting");

@@ -35,7 +35,7 @@ iface eth0 inet dhcp
 
 auto eth0:0
 iface eth0:0 inet static
-address 10.3.252.100
+address 10.4.97.100
 netmask 255.0.0.0
 
 auto wlan0
@@ -50,12 +50,8 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 
 
 ## Kill one dhcp client
-dpkg -l | grep dhcp
-apt-get remove dhcpcd5
+sudo apt-get remove dhcpcd5
 
 ## Restart
 sudo reboot
 
-
-pylon IP: 10.4.97.107
-lightpost IP: 10.3.252.70
