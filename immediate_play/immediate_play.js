@@ -1,91 +1,76 @@
-// Send out RGB values for 50 ck node lights
-
 // - - - - - - - - - - - - - - -
-// Soso Lighting Client
+// Soso Raspberry Pi Video Player
 //
-// A Simple Node Client
-//
-// Fetches lighting frames from StudioLights Server
-// Converts data format to KiNet data packet
+// Takes screenshots from video file
+// Converts png's to RGBA pixel data
+// Converts pixel data to KiNet data packet
 // Sends lighting data to KiNet hardware via UDP (using kinetServer)
 
 
 // - - - - - - - - - - - - - - -
-// SETUP
+// Setup
 // - - - - - - - - - - - - - - -
 
-// Require kinetServer module
+// Require kinetServer, ffmpeg, get-pixels modules
 var kinetServer = require('./kinetServer.js');
 var ffmpeg = require('fluent-ffmpeg');
 var getPixels = require('get-pixels');
 
-//====================
-// Print file name
-//====================
 
+// Read in video file name from command line
 var args = process.argv.slice(2).toString();
-console.log(args);
 
-// take png's from input video
-var proc = ffmpeg(args)
-  // set the size of your thumbnails
-  // setup event handlers
-  .on('filenames', function(filenames) {
-    console.log('screenshots are ' + filenames.join(', '));
-  })
-  .on('end', function() {
-    console.log('screenshots were saved');
-  })
-  .on('error', function(err) {
-    console.log('an error happened: ' + err.message);
-  })
-  // take 2 screenshots at predefined timemarks
-  .takeScreenshots({ count: 2, timemarks: [ '00:00:02.000', '6'] }, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
 
+// - - - - - - - - - - - - - - -
+// Compress video, if need be
+// - - - - - - - - - - - - - - -
+// ffmpeg -i LightCube2.mov -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -vcodec libx264 -crf 200 output3.mp4 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"
+// 200 has to do with proportion of compression
 
 // - - - - - - - - - - - - - - -
 // Frame Client Factory Function
 // - - - - - - - - - - - - - - -
+
 // Create FrameClient (immediately executed)
 var createFrameClient = function() {
 
 
-// - - - - - - - - - - - - - - -
-// Helper functions
-// - - - - - - - - - - - - - - -
-
 	var count = 0;
-
-	function reverseArray(arr, start, end){
-		var temp;
-		if (start >= end){
-			return;
-		}
-		temp = arr[start];
-		arr[start]=arr[end];
-		arr[end]=temp;
-		reverseArray(arr, start+1, end-1);
-	}
-
+	var screenshot_count = 1;
 
 // - - - - - - - - - - - - - - -
 // Create Client
 // - - - - - - - - - - - - - - -
 
-	// first check for config.js, which needs to be created manually
-	// at each location (base it on config-default.js)
-	var fs = require('fs');
+	// Create child node process to trigger sending of frames
 	var process = require('child_process');
 	var ls = process.fork('server.js');
 
+
+	// First check for config.js, which needs to be created manually
+	var fs = require('fs');
+	var config = require('./config.js');
 	if( !fs.existsSync('./config.js') ){
 		console.log( "\nError: config.js not found! Copy config-default.js to config.js and change values as needed.\n" );
 		return;
 	}
 
-	var config = require('./config.js');
-
 	var client = {};
+
+	var proc = ffmpeg(args)
+  	// Setup event handlers
+  	.on('filenames', function(filenames) {
+    	console.log('Screenshots are ' + filenames.join(', '));
+  	})
+  	.on('end', function() {
+    	console.log('Screenshots were saved');
+  	})
+  	.on('error', function(err) {
+    	console.log('An error happened: ' + err.message);
+  	})
+  	// Take num_screenshots screenshots at predefined timemarks
+  	.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
+
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -104,20 +89,23 @@ var createFrameClient = function() {
 		console.log("Disconnected from Frame Server");
 	});
 
-	function playRandomData(){
+	// Function that talks to kinetServer to send pixel data to lights
+	function sendPixelsToLights(screenshot_count){
+	var lightStrand = new Array(config.num_lights * 3 + 1 );
+	var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
 
-	var lightStrand = new Array(150 +1 );
-
-
-	getPixels('/Users/lasher/Sosolimited/PiPlayer/video_play/exported/tn_1.png', function(err, pixels){
+	// Get pixel data from the png's
+	getPixels(file_string, function(err, pixels){
 		if (err){
 			console.log(err);
 			return;
 		} else {
 			var pixelArr = pixels.data;
-			var pix = new Array(150 +1 );
+			var pix = new Array(config.num_lights * 3 + 1 );
 			var cnt = 0;
-		for(var i=0;i<199;i+=4){
+
+		//Get rid of alpha value in pixel array
+		for(var i=0; i<config.num_lights * 3 * 2; i+=4){
 			pix[cnt] = pixelArr[i];
 			pix[cnt+1] = pixelArr[i+1];
 			pix[cnt+2] = pixelArr[i+2];
@@ -125,34 +113,28 @@ var createFrameClient = function() {
 		}
 
 		// Generate light strand
-		for(var i=0;i<150;i+=3){
+		for(var i=0; i<config.num_lights * 3 + 1 ; i+=3){
 			 lightStrand[i] = pix[i];
 			 lightStrand[i+1] = pix[i+1];
 			 lightStrand[i+2] = pix[i+2];
 		}
+
+		// Send pixel data
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 		}
-			 console.log(lightStrand);
+			 // console.log(lightStrand);
+	});
+	}
+
+// When receive frame from child process, call function to send pixels to lights
+	client.socket.on('frame', function(data){
+		if (screenshot_count > config.num_screenshots){
+			screenshot_count = 1;
+		}
+		sendPixelsToLights(screenshot_count);
+		count++; screenshot_count++;
 	});
 
-	}
-		client.socket.on('frame', function(data){
-		playRandomData();
-		count++;
-	});
-	}();
+}();
 
-
-
-
-
-	function sleep(milliseconds){
-	   console.log("waiting");
-	   var start = new Date().getTime();
-	   for(var i = 0; i < 1e7; i++){
-	     if((new Date().getTime() - start) > milliseconds){
-		break;
-	     }
-	   }
-	}
 
