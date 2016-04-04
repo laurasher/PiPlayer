@@ -1,0 +1,64 @@
+{
+  "name": "ffprobe",
+  "version": "1.1.0",
+  "description": "Use ffprobe to get info from media files and return as JSON",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eugeneware/ffprobe.git"
+  },
+  "keywords": [
+    "json",
+    "ffmpeg",
+    "ffprobe",
+    "media",
+    "video",
+    "audio",
+    "image",
+    "images"
+  ],
+  "author": {
+    "name": "Eugene Ware",
+    "email": "eugene@noblesamurai.com"
+  },
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/eugeneware/ffprobe/issues"
+  },
+  "dependencies": {
+    "JSONStream": "^1.0.7",
+    "bl": "^1.0.0",
+    "deferential": "^1.0.0"
+  },
+  "devDependencies": {
+    "expect.js": "~0.3.0",
+    "ffprobe-static": "^1.1.0",
+    "mocha": "~2.1.0"
+  },
+  "gitHead": "8ab490e3160ffbfb866d9ee0e7798a941f901112",
+  "homepage": "https://github.com/eugeneware/ffprobe#readme",
+  "_id": "ffprobe@1.1.0",
+  "_shasum": "f64f0ea44e33c80fc1f7aefe31fc4b3707d2acce",
+  "_from": "ffprobe@*",
+  "_npmVersion": "3.4.0",
+  "_nodeVersion": "0.12.7",
+  "_npmUser": {
+    "name": "eugeneware",
+    "email": "eugene@noblesamurai.com"
+  },
+  "maintainers": [
+    {
+      "name": "eugeneware",
+      "email": "eugene@noblesamurai.com"
+    }
+  ],
+  "dist": {
+    "shasum": "f64f0ea44e33c80fc1f7aefe31fc4b3707d2acce",
+    "tarball": "https://registry.npmjs.org/ffprobe/-/ffprobe-1.1.0.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/ffprobe/-/ffprobe-1.1.0.tgz"
+}

@@ -50,7 +50,7 @@ if( !fs.existsSync('./config.js') ){
 
 ffmpeg.ffprobe(args, function(err, metadata) {
   duration = metadata.format.duration;
-  // Set frame rate
+//   Set frame rate
   frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
   console.log(frameRate);
 });
@@ -79,7 +79,8 @@ ffmpeg.ffprobe(args, function(err, metadata) {
     	console.log('An error happened: ' + err.message);
   	})
   	// Take num_screenshots screenshots at predefined timemarks
-  	.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
+  	//.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
+	.takeScreenshots(config.num_screenshots, 'exported');
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -101,7 +102,8 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 	// Function that talks to kinetServer to send pixel data to lights
 	function sendPixelsToLights(screenshot_count){
 	var lightStrand = new Array(config.num_lights * 3 + 1 );
-	var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
+	//var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
+	var file_string = 'exported/tn_' + screenshot_count + '.png';	
 
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
@@ -146,7 +148,7 @@ var id = gameloop.setGameLoop(function(delta) {
 		screenshot_count++;
 		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
 	// console.log(frameRate);
-}, frameRate);
+}, 14);
 
 
 }();
