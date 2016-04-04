@@ -48,16 +48,13 @@ if( !fs.existsSync('./config.js') ){
 }
 
 ffmpeg.ffprobe(args, function(err, metadata) {
-  duration = metadata.format.duration;
-<<<<<<< HEAD
 //   Set frame rate
   frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
-  console.log(frameRate);
-=======
+  // console.log(frameRate);
+
   // Set frame rate
   // frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
   frameRate = eval(metadata.streams[0].r_frame_rate);
->>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 });
 
 
@@ -79,12 +76,8 @@ ffmpeg.ffprobe(args, function(err, metadata) {
     	console.log('An error happened: ' + err.message);
   	})
   	// Take num_screenshots screenshots at predefined timemarks
-<<<<<<< HEAD
   	//.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
-	.takeScreenshots(config.num_screenshots, 'exported');
-=======
   	.takeScreenshots(config.num_screenshots, config.PATH_NAME);
->>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -128,12 +121,7 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 	// Function that talks to kinetServer to send pixel data to lights
 	function sendPixelsToLights(screenshot_count){
 	var lightStrand = new Array(config.num_lights * 3 + 1 );
-<<<<<<< HEAD
-	//var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
-	var file_string = 'exported/tn_' + screenshot_count + '.png';	
-=======
-	var file_string = PATH_NAME + 'tn_' + screenshot_count + '.png';
->>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
+	var file_string = config.PATH_NAME + 'tn_' + screenshot_count + '.png';
 
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
@@ -157,13 +145,9 @@ var id = gameloop.setGameLoop(function(delta) {
 		}
 		sendPixelsToLights(screenshot_count);
 		screenshot_count++;
-<<<<<<< HEAD
 		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
 	// console.log(frameRate);
-}, 14);
-=======
 }, frameRate);
->>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 
 
 }();
