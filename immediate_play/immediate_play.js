@@ -73,7 +73,7 @@ ffmpeg.ffprobe(args, function(err, metadata) {
     	console.log('An error happened: ' + err.message);
   	})
   	// Take num_screenshots screenshots at predefined timemarks
-  	.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
+  	.takeScreenshots(config.num_screenshots, config.PATH_NAME);
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -117,7 +117,7 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 	// Function that talks to kinetServer to send pixel data to lights
 	function sendPixelsToLights(screenshot_count){
 	var lightStrand = new Array(config.num_lights * 3 + 1 );
-	var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
+	var file_string = PATH_NAME + 'tn_' + screenshot_count + '.png';
 
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){

@@ -5,3 +5,5 @@ module.exports.num_screenshots = 499; //defines resolution of video played on li
 module.exports.num_lights = 50;
 module.exports.output_height = 9;
 module.exports.output_width = 5;
+module.exports.PATH_NAME = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/';
+// module.exports.PATH_NAME = 'exported';
