@@ -98,6 +98,40 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 		console.log("Disconnected from Frame Server");
 	});
 
+	function parsePixels(pixels){
+		var lightStrand = new Array(config.output_width * config.output_height * 3 + 1 );
+		// var pixelArr = pixels.data;
+		// var pix = new Array(pixels.shape[0]*pixels.shape[1]*(pixels.shape[2]-1));
+		// var cnt = 0;
+
+		var input_height = pixels.shape[0];
+		var input_width = pixels.shape[1];
+		// Get rid of alpha value in pixel array
+		// for(var i=0; i<pixels.shape[0]*pixels.shape[1]*pixels.shape[2]; i+=4){
+		// 	pix[cnt] = pixelArr[i];
+		// 	pix[cnt+1] = pixelArr[i+1];
+		// 	pix[cnt+2] = pixelArr[i+2];
+		// 	cnt+=3;
+		// }
+
+		// Get desired values in array for config light arrangement
+		var cnt = 0;
+		var inc = Math.floor(input_width/(input_width/config.output_width))*4;
+		for (var i=0; i<input_width*4; i+=inc){
+			for (var j=0; j<input_height; j+=Math.floor(input_height/config.output_height)){
+				// console.log(pix[i,j]);
+				lightStrand[cnt] = pixels.data[j,i];
+				lightStrand[cnt+1] = pixels.data[j,i+1];
+				lightStrand[cnt+2] = pixels.data[j,i+2];
+				console.log(pixels.data[j,i]);
+				console.log(pixels.data[j,i+1]);
+				console.log(pixels.data[j,i+2]);
+				cnt+=3;
+		}
+	}
+		return lightStrand;
+	}
+
 	// Function that talks to kinetServer to send pixel data to lights
 	function sendPixelsToLights(screenshot_count){
 	var lightStrand = new Array(config.num_lights * 3 + 1 );
@@ -106,32 +140,13 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
 		if (err){
-			// console.log(err);
+			console.log(err);
 			return;
 		} else {
-			var pixelArr = pixels.data;
-			var pix = new Array(config.num_lights * 3 + 1 );
-			var cnt = 0;
 
-		//Get rid of alpha value in pixel array
-		for(var i=0; i<config.num_lights * 3 * 2; i+=4){
-			pix[cnt] = pixelArr[i];
-			pix[cnt+1] = pixelArr[i+1];
-			pix[cnt+2] = pixelArr[i+2];
-			cnt+=3;
-		}
-
-		// Generate light strand
-		for(var i=0; i<config.num_lights * 3 + 1 ; i+=3){
-			 lightStrand[i] = pix[i];
-			 lightStrand[i+1] = pix[i+1];
-			 lightStrand[i+2] = pix[i+2];
-		}
-
-		// Send pixel data
+		var lightStrand = parsePixels(pixels);
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 		}
-			 // console.log(lightStrand);
 	});
 	}
 
