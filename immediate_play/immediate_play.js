@@ -20,7 +20,6 @@ var gameloop = require('node-gameloop');
 // Read in video file name from command line
 var args = process.argv.slice(2).toString();
 var duration = 0;
-// var frameRate = 0;
 
 
 // - - - - - - - - - - - - - - -
@@ -51,19 +50,14 @@ if( !fs.existsSync('./config.js') ){
 ffmpeg.ffprobe(args, function(err, metadata) {
   duration = metadata.format.duration;
   // Set frame rate
-  frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
-  console.log(frameRate);
+  // frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
+  frameRate = eval(metadata.streams[0].r_frame_rate);
 });
 
 
 // - - - - - - - - - - - - - - -
 // Create Client
 // - - - - - - - - - - - - - - -
-
-	// Create child node process to trigger sending of frames
-	// var process = require('child_process');
-	// var ls = process.fork('server.js');
-
 
 	var client = {};
 
@@ -100,33 +94,21 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 
 	function parsePixels(pixels){
 		var lightStrand = new Array(config.output_width * config.output_height * 3 + 1 );
-		// var pixelArr = pixels.data;
-		// var pix = new Array(pixels.shape[0]*pixels.shape[1]*(pixels.shape[2]-1));
-		// var cnt = 0;
 
 		var input_height = pixels.shape[0];
 		var input_width = pixels.shape[1];
-		// Get rid of alpha value in pixel array
-		// for(var i=0; i<pixels.shape[0]*pixels.shape[1]*pixels.shape[2]; i+=4){
-		// 	pix[cnt] = pixelArr[i];
-		// 	pix[cnt+1] = pixelArr[i+1];
-		// 	pix[cnt+2] = pixelArr[i+2];
-		// 	cnt+=3;
-		// }
 
 		// Get desired values in array for config light arrangement
 		var cnt = 0;
 		var inc = Math.floor(input_width/(input_width/config.output_width))*4;
 		for (var i=0; i<input_width*4; i+=inc){
 			for (var j=0; j<input_height; j+=Math.floor(input_height/config.output_height)){
-				// console.log(pix[i,j]);
+
 				lightStrand[cnt] = pixels.data[j,i];
 				lightStrand[cnt+1] = pixels.data[j,i+1];
 				lightStrand[cnt+2] = pixels.data[j,i+2];
-				console.log(pixels.data[j,i]);
-				console.log(pixels.data[j,i+1]);
-				console.log(pixels.data[j,i+2]);
 				cnt+=3;
+
 		}
 	}
 		return lightStrand;
@@ -159,8 +141,6 @@ var id = gameloop.setGameLoop(function(delta) {
 		}
 		sendPixelsToLights(screenshot_count);
 		screenshot_count++;
-		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
-	// console.log(frameRate);
 }, frameRate);
 
 
