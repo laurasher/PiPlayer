@@ -20,7 +20,6 @@ var gameloop = require('node-gameloop');
 // Read in video file name from command line
 var args = process.argv.slice(2).toString();
 var duration = 0;
-// var frameRate = 0;
 
 
 // - - - - - - - - - - - - - - -
@@ -50,20 +49,21 @@ if( !fs.existsSync('./config.js') ){
 
 ffmpeg.ffprobe(args, function(err, metadata) {
   duration = metadata.format.duration;
+<<<<<<< HEAD
 //   Set frame rate
   frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
   console.log(frameRate);
+=======
+  // Set frame rate
+  // frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
+  frameRate = eval(metadata.streams[0].r_frame_rate);
+>>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 });
 
 
 // - - - - - - - - - - - - - - -
 // Create Client
 // - - - - - - - - - - - - - - -
-
-	// Create child node process to trigger sending of frames
-	// var process = require('child_process');
-	// var ls = process.fork('server.js');
-
 
 	var client = {};
 
@@ -79,8 +79,12 @@ ffmpeg.ffprobe(args, function(err, metadata) {
     	console.log('An error happened: ' + err.message);
   	})
   	// Take num_screenshots screenshots at predefined timemarks
+<<<<<<< HEAD
   	//.takeScreenshots(config.num_screenshots, '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported');
 	.takeScreenshots(config.num_screenshots, 'exported');
+=======
+  	.takeScreenshots(config.num_screenshots, config.PATH_NAME);
+>>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 
 	// Create KiNet server for sending data to lights
 	client.kinetServer = kinetServer.createKinetServer();
@@ -99,41 +103,48 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 		console.log("Disconnected from Frame Server");
 	});
 
+	function parsePixels(pixels){
+		var lightStrand = new Array(config.output_width * config.output_height * 3 + 1 );
+
+		var input_height = pixels.shape[0];
+		var input_width = pixels.shape[1];
+
+		// Get desired values in array for config light arrangement
+		var cnt = 0;
+		var inc = Math.floor(input_width/(input_width/config.output_width))*4;
+		for (var i=0; i<input_width*4; i+=inc){
+			for (var j=0; j<input_height; j+=Math.floor(input_height/config.output_height)){
+
+				lightStrand[cnt] = pixels.data[j,i];
+				lightStrand[cnt+1] = pixels.data[j,i+1];
+				lightStrand[cnt+2] = pixels.data[j,i+2];
+				cnt+=3;
+
+		}
+	}
+		return lightStrand;
+	}
+
 	// Function that talks to kinetServer to send pixel data to lights
 	function sendPixelsToLights(screenshot_count){
 	var lightStrand = new Array(config.num_lights * 3 + 1 );
+<<<<<<< HEAD
 	//var file_string = '/Users/lasher/Sosolimited/PiPlayer/immediate_play/exported/tn_' + screenshot_count + '.png';
 	var file_string = 'exported/tn_' + screenshot_count + '.png';	
+=======
+	var file_string = PATH_NAME + 'tn_' + screenshot_count + '.png';
+>>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
 		if (err){
-			// console.log(err);
+			console.log(err);
 			return;
 		} else {
-			var pixelArr = pixels.data;
-			var pix = new Array(config.num_lights * 3 + 1 );
-			var cnt = 0;
 
-		//Get rid of alpha value in pixel array
-		for(var i=0; i<config.num_lights * 3 * 2; i+=4){
-			pix[cnt] = pixelArr[i];
-			pix[cnt+1] = pixelArr[i+1];
-			pix[cnt+2] = pixelArr[i+2];
-			cnt+=3;
-		}
-
-		// Generate light strand
-		for(var i=0; i<config.num_lights * 3 + 1 ; i+=3){
-			 lightStrand[i] = pix[i];
-			 lightStrand[i+1] = pix[i+1];
-			 lightStrand[i+2] = pix[i+2];
-		}
-
-		// Send pixel data
+		var lightStrand = parsePixels(pixels);
 		client.kinetServer.sendKinetData( lightStrand, config.kinetIP, 1 );
 		}
-			 // console.log(lightStrand);
 	});
 	}
 
@@ -146,9 +157,13 @@ var id = gameloop.setGameLoop(function(delta) {
 		}
 		sendPixelsToLights(screenshot_count);
 		screenshot_count++;
+<<<<<<< HEAD
 		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
 	// console.log(frameRate);
 }, 14);
+=======
+}, frameRate);
+>>>>>>> 0982c2422d62da73b18e07f21f001f6e15666a14
 
 
 }();
