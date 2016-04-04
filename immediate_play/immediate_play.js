@@ -126,7 +126,7 @@ ffmpeg.ffprobe(args, function(err, metadata) {
 	// Get pixel data from the png's
 	getPixels(file_string, function(err, pixels){
 		if (err){
-			console.log(err);
+			//console.log(err);
 			return;
 		} else {
 
@@ -147,9 +147,7 @@ var id = gameloop.setGameLoop(function(delta) {
 		screenshot_count++;
 		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
 	// console.log(frameRate);
-}, frameRate);
-
-
+}, 14);
 }();
 
 
