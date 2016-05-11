@@ -48,12 +48,12 @@ if( !fs.existsSync('./config.js') ){
 	return;
 }
 
-ffmpeg.ffprobe(args, function(err, metadata) {
-  duration = metadata.format.duration;
+//ffmpeg.ffprobe(args, function(err, metadata) {
+//  duration = metadata.format.duration;
 //   Set frame rate
-  frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
-  console.log(frameRate);
-});
+//  frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
+//  console.log(frameRate);
+//});
 
 
 // - - - - - - - - - - - - - - -
@@ -147,9 +147,9 @@ var id = gameloop.setGameLoop(function(delta) {
 		sendPixelsToLights(screenshot_count);
 		screenshot_count++;
 		// frameRate = Math.floor(config.num_screenshots / Math.floor(duration));
-	// console.log(frameRate);
-}, 14);
-
+	//console.log(config.frameRate);
+}, config.frameRate);
+//},100);
 
 }();
 
